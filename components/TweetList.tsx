@@ -1,51 +1,83 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import Tweet from "./Tweet"
 
-// This data should ideally come from an API or database
-const mockTweets = [
+interface TweetData {
+  id: string
+  author: {
+    name: string
+    username: string
+    avatar: string
+  }
+  content: string
+  timestamp: string
+  likes: number
+  retweets: number
+  replies: number
+}
+
+// Mock data for tweets
+const mockTweets: TweetData[] = [
   {
     id: "1",
-    author: { name: "John Doe", username: "johndoe", avatar: "/placeholder.svg" },
-    content: "Just setting up my Twitter clone!",
+    author: {
+      name: "John Doe",
+      username: "johndoe",
+      avatar: "/placeholder.svg",
+    },
+    content: "This is a mock tweet",
     timestamp: "2h",
-    likes: 5,
-    retweets: 2,
-    replies: 1,
+    likes: 10,
+    retweets: 5,
+    replies: 3,
   },
   {
     id: "2",
-    author: { name: "Jane Smith", username: "janesmith", avatar: "/placeholder.svg" },
-    content: "This Twitter clone looks amazing! Great job on the UI.",
-    timestamp: "4h",
-    likes: 10,
-    retweets: 3,
-    replies: 2,
+    author: {
+      name: "Jane Smith",
+      username: "janesmith",
+      avatar: "/placeholder.svg",
+    },
+    content: "Another mock tweet",
+    timestamp: "5h",
+    likes: 20,
+    retweets: 8,
+    replies: 6,
   },
 ]
 
 export default function TweetList() {
-  const [tweets, setTweets] = useState(mockTweets)
-  const [error, setError] = useState<string | null>(null)
+  const [tweets, setTweets] = useState<TweetData[]>([])
+  const [isNotFound, setIsNotFound] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
-    // Simulating an API call
     const fetchTweets = async () => {
       try {
-        // In a real app, this would be an API call
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-        setTweets(mockTweets)
+        const response = await fetch("/api/posts")
+        if (response.ok) {
+          const data = await response.json()
+          setTweets(data)
+        } else if (response.status === 404) {
+          setIsNotFound(true)
+          setTweets(mockTweets)
+        } else {
+          // For other errors, use mock data
+          setTweets(mockTweets)
+        }
       } catch (err) {
-        setError("Failed to fetch tweets")
+        // If there's an error, use mock data
+        setTweets(mockTweets)
       }
     }
 
     fetchTweets()
   }, [])
 
-  if (error) {
-    return <div className="p-4 text-red-500">Error loading tweets: {error}</div>
+  const handleTweetClick = (tweet: TweetData) => {
+    router.push(`/${tweet.author.username}/status/${tweet.id}`)
   }
 
   if (tweets.length === 0) {
@@ -54,8 +86,14 @@ export default function TweetList() {
 
   return (
     <div>
+      {isNotFound && (
+        <div className="p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700">
+          <p className="font-bold">Note:</p>
+          <p>We couldn't find the requested tweets. Showing example tweets instead.</p>
+        </div>
+      )}
       {tweets.map((tweet) => (
-        <Tweet key={tweet.id} tweet={tweet} />
+        <Tweet key={tweet.id} tweet={tweet} onClick={() => handleTweetClick(tweet)} />
       ))}
     </div>
   )

@@ -1,10 +1,25 @@
-import dynamic from "next/dynamic"
+"use client"
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { CalendarBlank, MapPin } from "@phosphor-icons/react"
+import dynamic from "next/dynamic"
+import { useEffect, useState } from "react"
+
+const CalendarBlank = dynamic(() => import("@phosphor-icons/react").then((mod) => mod.CalendarBlank), { ssr: false })
+const MapPin = dynamic(() => import("@phosphor-icons/react").then((mod) => mod.MapPin), { ssr: false })
 
 const DynamicTabGroup = dynamic(() => import("@/components/TabGroup"), { ssr: false })
 
 export default function Profile() {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return null // or a loading spinner
+  }
+
   return (
     <div>
       <header className="px-4 py-3 border-b border-border sticky top-0 bg-background/80 backdrop-blur-sm z-10">

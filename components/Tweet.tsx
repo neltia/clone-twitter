@@ -1,4 +1,5 @@
-import { ChatCircle, ArrowsClockwise, Heart, Export, User } from "@phosphor-icons/react"
+import { ArrowsClockwise, ChatCircle, Export, Heart } from "@phosphor-icons/react"
+import Link from "next/link"
 
 interface TweetProps {
   tweet: {
@@ -17,28 +18,53 @@ interface TweetProps {
 }
 
 export default function Tweet({ tweet }: TweetProps) {
+  const stopPropagation = (e: React.MouseEvent) => {
+    e.stopPropagation()
+  }
+
   return (
-    <article className="p-4 border-b border-border hover:bg-secondary/50 transition-colors cursor-pointer">
+    <article className="p-4 border-b border-border hover:bg-secondary/50 transition-colors">
       <div className="flex space-x-3">
-        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-          {tweet.author.avatar ? (
-            <img
-              src={tweet.author.avatar || "/placeholder.svg"}
-              alt={tweet.author.name}
-              className="w-full h-full rounded-full"
-            />
-          ) : (
-            <User size={24} weight="fill" className="text-muted-foreground" />
-          )}
-        </div>
-        <div className="flex-1 space-y-2">
+        <Link
+          href={`/${tweet.author.username}`}
+          className="flex-shrink-0"
+          onClick={stopPropagation}
+        >
+          <img
+            src={tweet.author.avatar || "/placeholder.svg"}
+            alt=""
+            className="w-12 h-12 rounded-full hover:opacity-80"
+          />
+        </Link>
+        <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-1">
-            <h3 className="font-bold hover:underline">{tweet.author.name}</h3>
-            <span className="text-muted-foreground">@{tweet.author.username}</span>
+            <Link
+              href={`/${tweet.author.username}`}
+              className="font-bold hover:underline"
+              onClick={stopPropagation}
+            >
+              {tweet.author.name}
+            </Link>
+            <Link
+              href={`/${tweet.author.username}`}
+              className="text-muted-foreground hover:underline"
+              onClick={stopPropagation}
+            >
+              @{tweet.author.username}
+            </Link>
             <span className="text-muted-foreground">·</span>
-            <span className="text-muted-foreground hover:underline">{tweet.timestamp}</span>
+            <Link
+              href={`/${tweet.author.username}/status/${tweet.id}`}
+              className="text-muted-foreground hover:underline"
+            >
+              {tweet.timestamp}
+            </Link>
           </div>
-          <p className="text-[15px] leading-normal">{tweet.content}</p>
+          <Link href={`/${tweet.author.username}/status/${tweet.id}`} className="block">
+            <p className="text-[15px] leading-normal whitespace-pre-wrap break-words">
+              {tweet.content}
+            </p>
+          </Link>
           <div className="flex justify-between items-center pt-3 text-muted-foreground max-w-md">
             <button className="flex items-center space-x-2 group">
               <div className="p-2 group-hover:bg-blue-500/10 group-hover:text-blue-500 rounded-full transition-colors">

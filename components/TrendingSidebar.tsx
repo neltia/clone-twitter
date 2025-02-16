@@ -1,8 +1,15 @@
 "use client"
 
+import type React from "react"
+
 import { MagnifyingGlass } from "@phosphor-icons/react"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 export default function TrendingSidebar() {
+  const router = useRouter()
+  const [searchQuery, setSearchQuery] = useState("")
+
   const trendingTopics = [
     { topic: "Technology", tweets: "125K", category: "Technology" },
     { topic: "Sports", tweets: "89K", category: "Sports" },
@@ -10,17 +17,32 @@ export default function TrendingSidebar() {
     { topic: "Entertainment", tweets: "34K", category: "Entertainment" },
   ]
 
+  const handleShowMore = () => {
+    router.push("/trends")
+  }
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}`)
+    }
+  }
+
   return (
     <aside className="w-[350px] pl-4 sticky top-0 h-screen overflow-y-auto">
       <div className="sticky top-0 z-10 pb-4 pt-2 bg-background">
-        <div className="relative group">
+        <form onSubmit={handleSearch} className="relative group">
           <input
             type="text"
             placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-secondary rounded-full py-2 px-4 pl-12 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-background"
           />
-          <MagnifyingGlass size={20} className="absolute left-4 top-2.5 text-muted-foreground" />
-        </div>
+          <button type="submit" className="absolute left-4 top-2.5 text-muted-foreground">
+            <MagnifyingGlass size={20} />
+          </button>
+        </form>
       </div>
 
       <div className="bg-secondary rounded-2xl mt-4">
@@ -34,7 +56,10 @@ export default function TrendingSidebar() {
             </div>
           ))}
         </div>
-        <button className="p-4 text-primary hover:bg-accent/50 w-full text-left rounded-b-2xl transition-colors">
+        <button
+          onClick={handleShowMore}
+          className="p-4 text-primary hover:bg-accent/50 w-full text-left rounded-b-2xl transition-colors"
+        >
           Show more
         </button>
       </div>

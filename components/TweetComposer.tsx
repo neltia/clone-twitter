@@ -2,17 +2,34 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { Image, FilmStrip, ListBullets, Smiley, CalendarBlank } from "@phosphor-icons/react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { CalendarBlank, FilmStrip, Image, ListBullets, Smiley } from "@phosphor-icons/react"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 export default function TweetComposer() {
   const [tweet, setTweet] = useState("")
+  const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Tweet submitted:", tweet)
-    setTweet("")
+    try {
+      const response = await fetch("/api/posts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content: tweet }),
+      })
+      if (response.ok) {
+        setTweet("")
+        router.push("/posts")
+      } else {
+        console.error("Failed to create post")
+      }
+    } catch (error) {
+      console.error("Error creating post:", error)
+    }
   }
 
   return (
